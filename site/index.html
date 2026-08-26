@@ -8,126 +8,144 @@
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:ital,wght@0,400;0,500;1,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;1,400&family=Instrument+Serif:ital@0;1&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <header class="nav">
-    <a class="mark" href="#top">AFR</a>
-    <nav>
-      <a href="#method">Method</a>
-      <a href="#standards">Standards</a>
-      <a href="#start">Start</a>
-      <a href="https://github.com/startforge/agent-readiness-audit">GitHub</a>
-    </nav>
-  </header>
-
-  <main id="top">
-    <section class="hero">
-      <p class="kicker">Codex / Cursor Skill · v1.3.0</p>
-      <h1>Review the Agent you already shipped.</h1>
-      <p class="lede">Agent Framework Review locates evidence in code, tests, and traces — then scores runtime, tools, permissions, evals, and observability against one standard. Documentation never independently produces a pass.</p>
-      <div class="actions">
-        <a class="btn primary" href="#start">Run a review</a>
-        <a class="btn ghost" href="https://github.com/startforge/agent-readiness-audit">View the repository</a>
+  <div class="sheet">
+    <header class="masthead">
+      <div class="masthead-row">
+        <a class="mark" href="#top">AFR</a>
+        <p class="folio">Codex / Cursor Skill · v1.3.0</p>
       </div>
-      <dl class="stats">
-        <div><dt>31</dt><dd>automated standards</dd></div>
-        <div><dt>5</dt><dd>profiles: core, rag, workflow, skill, browser</dd></div>
-        <div><dt>0</dt><dd>extra npm packages · Node 20+</dd></div>
-      </dl>
-    </section>
+      <p class="journal">Agent Framework Review</p>
+      <p class="journal-sub">A standards ledger for Agent projects</p>
+      <nav aria-label="Page">
+        <a href="#method">Method</a>
+        <a href="#standards">Standards</a>
+        <a href="#start">Start</a>
+        <a href="https://github.com/startforge/agent-readiness-audit">GitHub</a>
+      </nav>
+      <div class="double-rule" aria-hidden="true"></div>
+    </header>
 
-    <section class="band">
-      <h2>What it actually answers</h2>
-      <ol class="questions">
-        <li>Do tool calls go through a permission gate, or can they bypass it?</li>
-        <li>Is model output schema-validated before anything runs?</li>
-        <li>Is there a step, time, or cost budget — or can a loop run forever?</li>
-        <li>Do delete, pay, publish, or messaging actions require confirmation?</li>
-        <li>Are logs and traces redacting secrets?</li>
-        <li>Are there repeatable tests, or only a demo?</li>
-      </ol>
-    </section>
+    <main id="top">
+      <section class="hero">
+        <h1>Review the Agent you already shipped.</h1>
+        <p class="lede">Agent Framework Review locates evidence in code, tests, and traces — then scores runtime, tools, permissions, evals, and observability against one standard. Documentation never independently produces a pass.</p>
+        <div class="actions">
+          <a class="btn primary" href="#start">Run a review</a>
+          <a class="btn ghost" href="https://github.com/startforge/agent-readiness-audit">View the repository</a>
+        </div>
+        <p class="meta-line">31 automated standards · 5 profiles: core, rag, workflow, skill, browser · 0 extra npm packages · Node 20+</p>
+      </section>
 
-    <section id="method">
-      <h2>How a review works</h2>
-      <p class="intro">One command. The scanner never pretends a keyword is a gate. Frameworks are recognized from <code>package.json</code>; internals in <code>node_modules</code> are not treated as proof.</p>
-      <ol class="steps">
-        <li>
-          <h3>Manifests first</h3>
-          <p>Read <code>package.json</code> / Python lockfiles. If Mastra, LangGraph, or LangChain is declared, search project source for constructors and init parameters such as <code>maxSteps</code>, <code>createTool</code>, <code>recursion_limit</code>, <code>interrupt_before</code>.</p>
-        </li>
-        <li>
-          <h3>Then the rest of the chain</h3>
-          <p>Those parameters cover loop, schema, and budget shortcuts only. Permissions, confirmation, redaction, evals, and your own tool <code>execute</code> paths are still read in the project.</p>
-        </li>
-        <li>
-          <h3>Custom runtimes</h3>
-          <p>No framework? Walk runtime, tools, security, workflow, and tests the same way. Structural analysis checks that a helper is actually called from the executor — unused <code>authorize()</code> cannot pass.</p>
-        </li>
-        <li>
-          <h3>A bundle you can keep</h3>
-          <p>Writes <code>agent-review/</code> in the target: HTML report, Excel workbook, JSON/Markdown data, file map, and a receipt so the next review does not re-read unchanged files.</p>
-        </li>
-      </ol>
-    </section>
+      <section class="block">
+        <h2><span class="sec-mark">I</span> What it actually answers</h2>
+        <ol class="questions">
+          <li>Do tool calls go through a permission gate, or can they bypass it?</li>
+          <li>Is model output schema-validated before anything runs?</li>
+          <li>Is there a step, time, or cost budget — or can a loop run forever?</li>
+          <li>Do delete, pay, publish, or messaging actions require confirmation?</li>
+          <li>Are logs and traces redacting secrets?</li>
+          <li>Are there repeatable tests, or only a demo?</li>
+        </ol>
+      </section>
 
-    <section class="band artifacts">
-      <h2>What you get</h2>
-      <ul class="cards">
-        <li><strong>report.html</strong> Findings, hierarchy, and file mapping in the browser.</li>
-        <li><strong>report.xlsx</strong> Summary, findings, files, relationships, evidence — open in Excel.</li>
-        <li><strong>report.md / .json</strong> The machine record. Compare, CI, or SARIF from the same scan.</li>
-        <li><strong>receipt.json</strong> Fingerprints for incremental review. Not full source.</li>
-      </ul>
-    </section>
+      <section class="block" id="method">
+        <h2><span class="sec-mark">II</span> How a review works</h2>
+        <p class="intro">One command. The scanner never pretends a keyword is a gate. Frameworks are recognized from <code>package.json</code>; internals in <code>node_modules</code> are not treated as proof.</p>
+        <ol class="steps">
+          <li>
+            <h3>Manifests first</h3>
+            <p>Read <code>package.json</code> / Python lockfiles. If Mastra, LangGraph, or LangChain is declared, search project source for constructors and init parameters such as <code>maxSteps</code>, <code>createTool</code>, <code>recursion_limit</code>, <code>interrupt_before</code>.</p>
+          </li>
+          <li>
+            <h3>Then the rest of the chain</h3>
+            <p>Those parameters cover loop, schema, and budget shortcuts only. Permissions, confirmation, redaction, evals, and your own tool <code>execute</code> paths are still read in the project.</p>
+          </li>
+          <li>
+            <h3>Custom runtimes</h3>
+            <p>No framework? Walk runtime, tools, security, workflow, and tests the same way. Structural analysis checks that a helper is actually called from the executor — unused <code>authorize()</code> cannot pass.</p>
+          </li>
+          <li>
+            <h3>A bundle you can keep</h3>
+            <p>Writes <code>agent-review/</code> in the target: HTML report, Excel workbook, JSON/Markdown data, file map, and a receipt so the next review does not re-read unchanged files.</p>
+          </li>
+        </ol>
+      </section>
 
-    <section id="standards">
-      <h2>Core standards</h2>
-      <p class="intro">Same IDs whether the runtime is TypeScript, Python, Mastra, or LangGraph. Critical gaps block a “ready for pilot” claim.</p>
-      <table>
-        <thead>
-          <tr><th>ID</th><th>Risk</th><th>Requirement</th></tr>
-        </thead>
-        <tbody>
-          <tr><td><code>T-02</code></td><td>Critical</td><td>Permission and scope on every tool call</td></tr>
-          <tr><td><code>T-03</code></td><td>Critical</td><td>Confirmation for delete, archive, modify, pay, publish, message</td></tr>
-          <tr><td><code>R-01</code></td><td>High</td><td>Explicit loop: model decisions are not side effects</td></tr>
-          <tr><td><code>R-02</code></td><td>High</td><td>Tool intent / model output is schema-validated</td></tr>
-          <tr><td><code>R-03</code></td><td>High</td><td>Max steps, duration, or call budget</td></tr>
-          <tr><td><code>T-01</code></td><td>High</td><td>Tool input, output, and error boundaries</td></tr>
-          <tr><td><code>O-03</code></td><td>High</td><td>Logs and traces do not leak secrets</td></tr>
-          <tr><td><code>E-01</code></td><td>High</td><td>Repeatable tests; demos are not enough</td></tr>
-          <tr><td><code>S-01</code></td><td>High</td><td>Injection, exfil, or tool-abuse tests — or constrained inputs</td></tr>
-        </tbody>
-      </table>
-      <p class="foot-note">Full list: core, rag, workflow, skill, browser — in the repository standard.</p>
-    </section>
+      <section class="block">
+        <h2><span class="sec-mark">III</span> What you get</h2>
+        <dl class="artifacts">
+          <div>
+            <dt>report.html</dt>
+            <dd>Findings, hierarchy, and file mapping in the browser.</dd>
+          </div>
+          <div>
+            <dt>report.xlsx</dt>
+            <dd>Summary, findings, files, relationships, evidence — open in Excel.</dd>
+          </div>
+          <div>
+            <dt>report.md / .json</dt>
+            <dd>The machine record. Compare, CI, or SARIF from the same scan.</dd>
+          </div>
+          <div>
+            <dt>receipt.json</dt>
+            <dd>Fingerprints for incremental review. Not full source.</dd>
+          </div>
+        </dl>
+      </section>
 
-    <section id="start" class="band">
-      <h2>Start</h2>
-      <div class="split">
-        <div>
-          <h3>CLI</h3>
-          <pre><code>git clone https://github.com/startforge/agent-readiness-audit.git
+      <section class="block" id="standards">
+        <h2><span class="sec-mark">IV</span> Core standards</h2>
+        <p class="intro">Same IDs whether the runtime is TypeScript, Python, Mastra, or LangGraph. Critical gaps block a “ready for pilot” claim.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>ID</th><th>Risk</th><th>Requirement</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><code>T-02</code></td><td class="risk-critical">Critical</td><td>Permission and scope on every tool call</td></tr>
+              <tr><td><code>T-03</code></td><td class="risk-critical">Critical</td><td>Confirmation for delete, archive, modify, pay, publish, message</td></tr>
+              <tr><td><code>R-01</code></td><td>High</td><td>Explicit loop: model decisions are not side effects</td></tr>
+              <tr><td><code>R-02</code></td><td>High</td><td>Tool intent / model output is schema-validated</td></tr>
+              <tr><td><code>R-03</code></td><td>High</td><td>Max steps, duration, or call budget</td></tr>
+              <tr><td><code>T-01</code></td><td>High</td><td>Tool input, output, and error boundaries</td></tr>
+              <tr><td><code>O-03</code></td><td>High</td><td>Logs and traces do not leak secrets</td></tr>
+              <tr><td><code>E-01</code></td><td>High</td><td>Repeatable tests; demos are not enough</td></tr>
+              <tr><td><code>S-01</code></td><td>High</td><td>Injection, exfil, or tool-abuse tests — or constrained inputs</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="foot-note">Full list: core, rag, workflow, skill, browser — in the repository standard.</p>
+      </section>
+
+      <section class="block" id="start">
+        <h2><span class="sec-mark">V</span> Start</h2>
+        <div class="split">
+          <div>
+            <h3>CLI</h3>
+            <pre><code>git clone https://github.com/startforge/agent-readiness-audit.git
 cd agent-readiness-audit
 node scripts/review-project.mjs /path/to/agent</code></pre>
-          <p>Open <code>agent-review/report.html</code> in that project. Node 20+, no extra packages.</p>
-        </div>
-        <div>
-          <h3>As a Skill</h3>
-          <pre><code>Use agent-framework-review to review
+            <p>Open <code>agent-review/report.html</code> in that project. Node 20+, no extra packages.</p>
+          </div>
+          <div>
+            <h3>As a Skill</h3>
+            <pre><code>Use agent-framework-review to review
 the current Agent project.</code></pre>
-          <p>Install from the GitHub URL in Codex or Cursor, then run it inside the target repo. Output lands in that project’s <code>agent-review/</code> folder.</p>
+            <p>Install from the GitHub URL in Codex or Cursor, then run it inside the target repo. Output lands in that project’s <code>agent-review/</code> folder.</p>
+          </div>
         </div>
-      </div>
-    </section>
-  </main>
+      </section>
+    </main>
 
-  <footer>
-    <p>Agent Framework Review · <a href="https://github.com/startforge/agent-readiness-audit">startforge/agent-readiness-audit</a></p>
-    <p class="muted">Read-only by default. Does not execute tools, deploys, or payments unless you pass <code>--execute-tests</code>.</p>
-  </footer>
+    <footer>
+      <div class="double-rule" aria-hidden="true"></div>
+      <p>Agent Framework Review · <a href="https://github.com/startforge/agent-readiness-audit">startforge/agent-readiness-audit</a></p>
+      <p class="muted">Read-only by default. Does not execute tools, deploys, or payments unless you pass <code>--execute-tests</code>.</p>
+    </footer>
+  </div>
 </body>
 </html>
