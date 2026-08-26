@@ -4,6 +4,25 @@
 
 这是一个用于审查 Agent 工程成熟度与风险的 Codex Skill。它按照统一的运行时、工具、权限、安全、评测、可观测性和专项能力标准，帮助输出有证据的架构审查报告。
 
+## 在 Codex 中快速使用
+
+复制本仓库地址，然后将下面这段文本直接交给 Codex：
+
+```text
+请从以下地址安装这个 Codex Skill：
+https://github.com/startforge/agent-readiness-audit.git
+
+安装完成后，请使用 agent-framework-review Skill 审查当前项目中的代码。运行静态扫描，阅读相关实现，区分静态证据与运行时验证，并使用仓库中的报告模板生成完整的审查报告。
+```
+
+Codex 确认安装成功后，在需要审查的 Agent 代码项目中直接调用：
+
+```text
+使用 agent-framework-review 审查当前 Agent 项目，并生成一份有证据的架构审查报告。
+```
+
+该 Skill 会针对当前项目的代码、配置入口、测试、工具、权限、运行时、安全、评测和可观测性进行审查。最终报告应明确列出适用 Profile、标准 ID、证据类型、风险、缺口和按优先级排序的整改建议。
+
 ## 功能
 
 - 根据工程能力选择适用 Profile：`core`、`rag`、`workflow`、`skill`、`browser`

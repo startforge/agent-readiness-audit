@@ -4,6 +4,25 @@
 
 This Codex Skill reviews the maturity and risks of Agent projects. It applies consistent standards for runtime behavior, tools, permissions, security, evaluation, observability, and optional capabilities, then produces an evidence-based architecture review report.
 
+## Quick start with Codex
+
+Copy this repository URL and give the following text to Codex:
+
+```text
+Please install this Codex Skill from:
+https://github.com/startforge/agent-readiness-audit.git
+
+After installation, use the agent-framework-review Skill to review the code in the current project. Run the static inspection, read the relevant implementation, distinguish static evidence from runtime verification, and generate a complete review report using the repository template.
+```
+
+After Codex confirms that the Skill is installed, invoke it in the Agent project with:
+
+```text
+Use agent-framework-review to review the current Agent project and generate an evidence-based architecture review report.
+```
+
+The Skill reviews the current project's code, configuration entry points, tests, tools, permissions, runtime, security, evaluation, and observability. The resulting report should clearly identify applicable profiles, standard IDs, evidence types, risks, gaps, and prioritized remediation actions.
+
 ## Features
 
 - Select applicable profiles: `core`, `rag`, `workflow`, `skill`, and `browser`
