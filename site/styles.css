@@ -297,12 +297,56 @@ code {
   font-size: 0.95rem;
   color: var(--muted);
 }
-pre {
+.snippet {
+  display: flex;
+  flex-direction: column;
   margin: 0.55rem 0 0;
+  border: 0.5px solid var(--ink);
+  background: var(--paper-deep);
+}
+.snippet-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0.35rem 0.55rem 0.35rem 0.8rem;
+  border-bottom: 0.5px solid var(--rule);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.copy {
+  appearance: none;
+  margin: 0;
+  padding: 0.2rem 0.5rem;
+  border: 0.5px solid var(--ink);
+  border-radius: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.copy:hover { background: oklch(0.34 0.048 155 / 0.08); }
+.copy[data-copied="true"] {
+  border-color: var(--stamp);
+  color: var(--stamp);
+}
+.copy:focus-visible {
+  outline: 1px solid var(--stamp);
+  outline-offset: 2px;
+}
+.snippet pre {
+  margin: 0;
   padding: 0.85rem 0.9rem;
   overflow-x: auto;
-  border: 0.5px solid var(--rule);
-  background: var(--paper-deep);
+  border: 0;
+  background: transparent;
   font-family: var(--mono);
   font-size: 0.76rem;
   line-height: 1.5;
