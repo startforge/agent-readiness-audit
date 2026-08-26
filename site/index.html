@@ -126,15 +126,27 @@
         <div class="split">
           <div>
             <h3>CLI</h3>
-            <pre><code>git clone https://github.com/startforge/agent-readiness-audit.git
+            <figure class="snippet">
+              <figcaption class="snippet-bar">
+                <span>Terminal</span>
+                <button type="button" class="copy">Copy</button>
+              </figcaption>
+              <pre><code>git clone https://github.com/startforge/agent-readiness-audit.git
 cd agent-readiness-audit
 node scripts/review-project.mjs /path/to/agent</code></pre>
+            </figure>
             <p>Open <code>agent-review/report.html</code> in that project. Node 20+, no extra packages.</p>
           </div>
           <div>
             <h3>As a Skill</h3>
-            <pre><code>Use agent-framework-review to review
+            <figure class="snippet">
+              <figcaption class="snippet-bar">
+                <span>Prompt</span>
+                <button type="button" class="copy">Copy</button>
+              </figcaption>
+              <pre><code>Use agent-framework-review to review
 the current Agent project.</code></pre>
+            </figure>
             <p>Install from the GitHub URL in Codex or Cursor, then run it inside the target repo. Output lands in that project’s <code>agent-review/</code> folder.</p>
           </div>
         </div>
@@ -147,5 +159,83 @@ the current Agent project.</code></pre>
       <p class="muted">Read-only by default. Does not execute tools, deploys, or payments unless you pass <code>--execute-tests</code>.</p>
     </footer>
   </div>
+  <script>
+    (function () {
+      function fallbackCopy(text, codeEl) {
+        return new Promise(function (resolve, reject) {
+          var selection = window.getSelection();
+          var range = document.createRange();
+          range.selectNodeContents(codeEl);
+          selection.removeAllRanges();
+          selection.addRange(range);
+          var ok = false;
+          try {
+            ok = document.execCommand("copy");
+          } catch (err) {
+            ok = false;
+          }
+          if (ok) {
+            selection.removeAllRanges();
+            resolve();
+            return;
+          }
+          var area = document.createElement("textarea");
+          area.value = text;
+          area.setAttribute("readonly", "");
+          area.style.position = "fixed";
+          area.style.top = "0";
+          area.style.left = "0";
+          area.style.width = "1px";
+          area.style.height = "1px";
+          document.body.appendChild(area);
+          area.focus();
+          area.select();
+          try {
+            ok = document.execCommand("copy");
+          } catch (err) {
+            ok = false;
+          }
+          document.body.removeChild(area);
+          if (ok) {
+            resolve();
+          } else {
+            reject(new Error("copy failed"));
+          }
+        });
+      }
+
+      function writeClipboard(text, codeEl) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          return navigator.clipboard.writeText(text).catch(function () {
+            return fallbackCopy(text, codeEl);
+          });
+        }
+        return fallbackCopy(text, codeEl);
+      }
+
+      document.querySelectorAll(".snippet").forEach(function (box) {
+        var button = box.querySelector(".copy");
+        var code = box.querySelector("code");
+        if (!button || !code) {
+          return;
+        }
+        button.addEventListener("click", function () {
+          var text = code.textContent.replace(/^\n+|\n+$/g, "");
+          var original = button.getAttribute("data-label") || button.textContent;
+          button.setAttribute("data-label", original);
+          writeClipboard(text, code).then(function () {
+            button.textContent = "Copied";
+            button.setAttribute("data-copied", "true");
+            window.setTimeout(function () {
+              button.textContent = original;
+              button.removeAttribute("data-copied");
+            }, 1600);
+          }).catch(function () {
+            button.textContent = original;
+          });
+        });
+      });
+    }());
+  </script>
 </body>
 </html>
