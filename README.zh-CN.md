@@ -40,6 +40,8 @@ Codex 确认安装成功后，在需要审查的 Agent 代码项目中直接调�
 ├── scripts/inspect-project.mjs             # 只读静态扫描脚本
 ├── templates/review-report.md              # 审查报告模板
 ├── smoke-test.mjs                           # 基础验收测试
+├── docs/development-plan.md                 # 开发计划
+├── docs/technical-documentation-standard.md # 技术文档与证据规范
 └── README.md                                # English documentation
 ```
 

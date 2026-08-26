@@ -40,6 +40,8 @@ The Skill reviews the current project's code, configuration entry points, tests,
 ├── scripts/inspect-project.mjs             # Read-only static scanner
 ├── templates/review-report.md              # Review report template
 ├── smoke-test.mjs                           # Basic acceptance test
+├── docs/development-plan.md                 # Development roadmap
+├── docs/technical-documentation-standard.md # Documentation and evidence standard
 └── README.zh-CN.md                          # Chinese documentation
 ```
 
