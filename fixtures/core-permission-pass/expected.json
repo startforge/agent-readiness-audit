@@ -1,0 +1,7 @@
+{
+  "T-02": {
+    "status": "pass",
+    "requireLocatedCode": true,
+    "requireReadmeClaim": true
+  }
+}

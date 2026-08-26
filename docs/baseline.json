@@ -1,0 +1,49 @@
+{
+  "version": "1.1.0",
+  "ruleCount": 31,
+  "automatedRuleCount": 31,
+  "standardCoverage": [
+    "R-01", "R-02", "R-03", "R-04", "R-05",
+    "T-01", "T-02", "T-03",
+    "O-01", "O-02", "O-03",
+    "E-01", "E-02", "S-01",
+    "K-01", "K-02", "K-03", "K-04", "K-05",
+    "W-01", "W-02", "W-03", "W-04",
+    "SK-01", "SK-02", "SK-03", "SK-04",
+    "B-01", "B-02", "B-03", "B-04"
+  ],
+  "fixtures": [
+    "core-permission-pass",
+    "core-permission-partial",
+    "core-permission-fail",
+    "core-permission-bypass",
+    "core-permission-comment",
+    "core-permission-py",
+    "core-schema-pass",
+    "core-schema-fail",
+    "core-schema-partial",
+    "core-budget-pass",
+    "core-budget-fail",
+    "core-approval-pass",
+    "core-approval-fail",
+    "core-approval-bypass",
+    "core-redact-pass",
+    "core-redact-fail",
+    "core-security-injection",
+    "core-integration-pass"
+  ],
+  "falsePositiveSamples": [
+    "comments are ignored as implementation evidence",
+    "documentation-only claims cannot pass",
+    "unused authorize() cannot pass T-02"
+  ],
+  "falseNegativeSamples": [
+    "unused authorize() next to executeTool is treated as a permission bypass",
+    "unbounded tool loops without maxSteps fail R-03"
+  ],
+  "knownLimitations": [
+    "Module-resolved middleware gates that are not named in the executor may still need manual review.",
+    "Tests and runtime traces are discovered, not executed, unless --execute-tests is passed.",
+    "Critical and High items cannot pass from keyword matches alone."
+  ]
+}
