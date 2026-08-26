@@ -1,5 +1,7 @@
 # Agent Framework Review
 
+**Website:** [https://startforge.github.io/agent-readiness-audit/](https://startforge.github.io/agent-readiness-audit/)
+
 An evidence-based architecture review for Agent projects. It checks runtime behavior, tools, permissions, security, evaluation, and observability against a shared standard, then writes a report you can act on.
 
 The scanner locates implementation evidence in code, tests, and traces. Architecture documents help it know where to look; they never independently produce a `pass`. A keyword match is never proof that the Agent is ready to run in production. When you run it in a project, it writes a bundle to that project's `agent-review/` folder (data report, Excel, HTML). `--ci` stays read-only unless you pass `--artifacts-dir`.
@@ -8,6 +10,7 @@ Current release: **1.2.0**. Requires **Node.js 20+**. No extra npm packages.
 
 ## Contents
 
+- [Website](https://startforge.github.io/agent-readiness-audit/)
 - [What it is for](#what-it-is-for)
 - [Quick start with Codex](#quick-start-with-codex)
 - [Quick start from the CLI](#quick-start-from-the-cli)
