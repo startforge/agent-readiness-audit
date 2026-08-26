@@ -1,5 +1,5 @@
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync } from "node:fs";
+import { mkdtempSync, writeFileSync, readFileSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { reviewProject } from "../lib/review.mjs";
@@ -43,13 +43,52 @@ if (!comparison.newCriticalFails.some((item) => item.id === "T-02")) throw new E
 
 const dir = mkdtempSync(join(tmpdir(), "review-compare-"));
 writeFileSync(join(dir, "prev.json"), JSON.stringify(pass));
-const compared = JSON.parse(run([join(root, "fixtures/core-permission-fail"), "--profiles", "core", "--format", "json", "--compare", join(dir, "prev.json")]));
+const compared = JSON.parse(run([join(root, "fixtures/core-permission-fail"), "--profiles", "core", "--format", "json", "--no-artifacts", "--compare", join(dir, "prev.json")]));
 if (!compared.comparison.newCriticalFails.length) throw new Error("CLI --compare did not record new Critical fails");
 
 const executed = reviewProject(join(root, "fixtures/core-permission-pass"), { profiles: ["core"], executeTests: true });
 if (!executed.testExecution.executed) throw new Error("execute-tests did not run");
 
-const sarifOut = run([join(root, "fixtures/core-permission-fail"), "--profiles", "core", "--format", "sarif"]);
+const artifacts = mkdtempSync(join(tmpdir(), "review-artifacts-"));
+run([join(root, "fixtures/core-permission-pass"), "--profiles", "core", "--format", "json", "--artifacts-dir", artifacts]);
+const receiptPath = join(artifacts, "receipt.json");
+const mapHtml = readFileSync(join(artifacts, "map.html"), "utf8");
+const receipt = JSON.parse(readFileSync(receiptPath, "utf8"));
+if (receipt.kind !== "agent-framework-review-receipt") throw new Error("receipt kind");
+if (!mapHtml.includes("src/tools.mjs")) throw new Error("map.html is missing the file mapping table");
+if (!mapHtml.includes("Hierarchy") || !mapHtml.includes("File mapping")) throw new Error("map.html is missing hierarchy or mapping sections");
+if (!existsSync(join(artifacts, "map.json")) || !existsSync(join(artifacts, "report.md"))) {
+  throw new Error("artifacts dir is missing report or map files");
+}
+if (!existsSync(join(artifacts, "report.html"))) throw new Error("missing report.html");
+const xlsx = readFileSync(join(artifacts, "report.xlsx"));
+if (xlsx.subarray(0, 2).toString() !== "PK") throw new Error("report.xlsx is not an Excel workbook");
+const reportHtml = readFileSync(join(artifacts, "report.html"), "utf8");
+if (!reportHtml.includes("src/tools.mjs") || !reportHtml.includes("Findings")) {
+  throw new Error("report.html is missing findings or file mapping");
+}
+
+const incremental = JSON.parse(
+  run([
+    join(root, "fixtures/core-permission-pass"),
+    "--profiles",
+    "core",
+    "--format",
+    "json",
+    "--from-receipt",
+    receiptPath,
+    "--no-artifacts",
+  ]),
+);
+if (!incremental.incremental?.enabled) throw new Error("second review should reuse the receipt");
+if (!incremental.incremental.reusedFiles.length) throw new Error("second review should reuse unchanged files");
+const incrementalT02 = incremental.findings.find((item) => item.id === "T-02");
+if (incrementalT02?.status !== "pass") throw new Error(`incremental T-02 expected pass, got ${incrementalT02?.status}`);
+if (!incremental.fileMap?.files.some((item) => item.file === "src/tools.mjs")) {
+  throw new Error("incremental report is missing the file map");
+}
+
+const sarifOut = run([join(root, "fixtures/core-permission-fail"), "--profiles", "core", "--format", "sarif", "--no-artifacts"]);
 JSON.parse(sarifOut);
 
 try {
@@ -59,4 +98,4 @@ try {
   if (error.status !== 1) throw error;
 }
 
-console.log("reporting, CI, AST, and compare tests passed");
+console.log("reporting, CI, AST, compare, artifacts, and incremental tests passed");

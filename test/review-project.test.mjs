@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 const root = resolve(import.meta.dirname, "..");
 const fixture = resolve(root, "fixtures/core-permission-pass");
 const review = resolve(root, "scripts/review-project.mjs");
-const output = execFileSync("node", [review, fixture, "--profiles", "core", "--format", "json"], { encoding: "utf8" });
+const output = execFileSync("node", [review, fixture, "--profiles", "core", "--format", "json", "--no-artifacts"], { encoding: "utf8" });
 const report = JSON.parse(output);
 const permission = report.findings.find((finding) => finding.id === "T-02");
 

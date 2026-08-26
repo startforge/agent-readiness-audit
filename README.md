@@ -2,9 +2,9 @@
 
 An evidence-based architecture review for Agent projects. It checks runtime behavior, tools, permissions, security, evaluation, and observability against a shared standard, then writes a report you can act on.
 
-The scanner is **read-only by default**. It locates implementation evidence in code, tests, and traces. Architecture documents help it know where to look; they never independently produce a `pass`. A keyword match is never proof that the Agent is ready to run in production.
+The scanner locates implementation evidence in code, tests, and traces. Architecture documents help it know where to look; they never independently produce a `pass`. A keyword match is never proof that the Agent is ready to run in production. When you run it in a project, it writes a bundle to that project's `agent-review/` folder (data report, Excel, HTML). `--ci` stays read-only unless you pass `--artifacts-dir`.
 
-Current release: **1.1.0**. Requires **Node.js 20+**. No extra npm packages.
+Current release: **1.2.0**. Requires **Node.js 20+**. No extra npm packages.
 
 ## Contents
 
@@ -13,6 +13,7 @@ Current release: **1.1.0**. Requires **Node.js 20+**. No extra npm packages.
 - [Quick start from the CLI](#quick-start-from-the-cli)
 - [What a review actually does](#what-a-review-actually-does)
 - [CLI reference](#cli-reference)
+- [Review artifacts and incremental scans](#review-artifacts-and-incremental-scans)
 - [How to read a report](#how-to-read-a-report)
 - [Profiles and standards](#profiles-and-standards)
 - [Evidence, status, and confidence](#evidence-status-and-confidence)
@@ -56,21 +57,21 @@ Use agent-framework-review to review the current Agent project and generate an e
 The Skill should:
 
 1. Confirm scope and profiles (`core` is mandatory).
-2. Run `scripts/review-project.mjs` on the current project.
+2. Run `scripts/review-project.mjs` on the current project so outputs go to `agent-review/`.
 3. Read runtime, tools, permissions, traces, and tests to verify the scan.
-4. Produce a report with standard IDs, status, risk, evidence type, and remediation for Critical/High gaps.
+4. Point you to `agent-review/report.html`, `agent-review/report.xlsx`, and `agent-review/report.md`.
 
 ## Quick start from the CLI
 
 Clone this repository (or use it as an installed Skill) and point it at an Agent project:
 
 ```bash
-node scripts/review-project.mjs /path/to/agent \
-  --format markdown \
-  --output review-report.md
+node scripts/review-project.mjs /path/to/agent
 ```
 
-Try it on a bundled fixture first:
+Open `/path/to/agent/agent-review/report.html` in a browser, or `/path/to/agent/agent-review/report.xlsx` in Excel.
+
+Try it on a bundled fixture first (add `--no-artifacts` if you do not want a folder written into the fixture):
 
 ```bash
 node scripts/review-project.mjs fixtures/core-permission-pass --profiles core --format markdown
@@ -109,6 +110,10 @@ node scripts/review-project.mjs <target-directory> [options]
 | `--format markdown\|json\|sarif` | `markdown` | stdout format. JSON is the machine-readable record; SARIF is 2.1.0. |
 | `--output file` | none | Also write the same payload to a file. |
 | `--compare previous.json` | none | Diff finding status against a previous JSON report. |
+| `--artifacts-dir dir` | `<target>/agent-review` | Project-local output folder for reports, Excel, HTML, and the receipt. |
+| `--from-receipt path` | the artifacts dir, if present | Incremental review from `receipt.json` or an artifacts directory. |
+| `--full` | off | Ignore any receipt and rescan every file. |
+| `--no-artifacts` | off | Do not write the `agent-review/` bundle. |
 | `--execute-tests` | off | Run the first discovered test command (`package.json` `test`, pytest, or a test file). |
 | `--ci` | off | Exit `1` when the failure threshold is breached. |
 | `--fail-on critical,high` | `critical` | Used with `--ci`. `critical` blocks Critical `fail`; add `high` or `partial` to tighten. |
@@ -140,7 +145,32 @@ node scripts/review-project.mjs . --ci --fail-on critical --format json --output
 
 # Authorized test run plus traces already in the repo
 node scripts/review-project.mjs . --execute-tests --format markdown
+
+# Persist explicitly (same as the default folder)
+node scripts/review-project.mjs . --artifacts-dir agent-review
+
+# Later review: reuse unchanged files from the receipt
+node scripts/review-project.mjs . --from-receipt agent-review
+
+# Stdout only (no project folder)
+node scripts/review-project.mjs . --no-artifacts --format markdown
 ```
+
+## Review artifacts and incremental scans
+
+When this Skill is invoked in a project, or when you run the CLI without `--ci` / `--no-artifacts`, it creates **`<project>/agent-review/`** if needed and writes the bundle there. That directory is skipped on later walks, so the bundle is not scanned as project source.
+
+| File | Role |
+| --- | --- |
+| `report.html` | Final HTML: findings, hierarchy, file mapping, relationships. Open in a browser. |
+| `report.xlsx` | Excel workbook: Summary, Findings, Files, Hierarchy, Relationships, Evidence. |
+| `report.md` / `report.json` | Data reports (Markdown and machine-readable JSON). |
+| `map.html` / `map.json` | File mapping table (HTML and JSON). |
+| `receipt.json` | Input for the next review: fingerprints, functions, evidence. No full source. |
+
+The next review compares fingerprints and **reuses** unchanged files instead of re-reading their text. Changed, added, or removed files are rescanned. If `ruleVersion` on the receipt does not match the current reviewer, the scan is full. `--full` forces a full rescan. Unchanged findings from the receipt are also used as the `--compare` baseline when you do not pass `--compare` yourself.
+
+JSON reports always include `fileMap` and `incremental` (`reusedFiles`, `rescannedFiles`, `addedFiles`, `removedFiles`), even when you do not write artifacts.
 
 ## How to read a report
 
@@ -153,6 +183,8 @@ Every report includes:
 - One row per applicable standard: ID, status, risk, confidence, evidence, remediation
 - Documentation claims and whether they match code
 - Metric baseline when traces exist (success rate, latency, cost, tool calls)
+- File mapping and hierarchy (which files sit in runtime, tools, security, tests, and so on)
+- Incremental scan stats when a receipt was reused
 - Limitations (tests not run, traces missing, and so on)
 
 ### Release conclusion
@@ -266,7 +298,7 @@ For your own Agent repo, store the JSON report and fail the job on new Critical 
 node scripts/review-project.mjs . --format json --output review.json --ci --fail-on critical --compare previous.json
 ```
 
-`--ci` is still read-only unless you also pass `--execute-tests`. It does not deploy, pay, message, or write into the target project except for `--output` / stdout.
+`--ci` does not write `agent-review/` unless you also pass `--artifacts-dir`. It does not deploy, pay, or message.
 
 ## Fixtures
 
@@ -321,7 +353,7 @@ Equivalent:
 ```bash
 node test/review-project.test.mjs   # T-02 pass fixture + README claims
 node test/fixtures.test.mjs         # every fixtures/*/expected.json
-node test/reporting.test.mjs        # SARIF, CI exit codes, --compare, AST comments
+node test/reporting.test.mjs        # SARIF, CI exit codes, --compare, artifacts, incremental
 node smoke-test.mjs                 # inspect-project.mjs still works on this repo
 ```
 
@@ -332,7 +364,7 @@ All of these run offline. The smoke test scans this repository with the legacy i
 This Skill is for review only.
 
 - Do not read `.env`, `agent.config.json`, private keys, or credential files.
-- Do not perform writes, deployments, payments, messaging, deletion, or external publication as part of a review.
+- Do not perform writes, deployments, payments, messaging, deletion, or external publication as part of a review, except the project's `agent-review/` bundle.
 - Do not paste secrets or raw personal data into the report; snippets are redacted when they look like keys or passwords.
 - Address Critical and High gaps before style or naming.
 

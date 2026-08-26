@@ -36,6 +36,18 @@
 
 {{comparison}}
 
+## Incremental scan
+
+{{incremental}}
+
+## File mapping
+
+{{fileMap}}
+
+## Hierarchy
+
+{{layers}}
+
 ## Quality
 
 - Rule count: {{ruleCount}}
