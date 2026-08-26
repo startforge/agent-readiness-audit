@@ -2,9 +2,7 @@ name: GitHub Pages
 
 on:
   push:
-    branches:
-      - main
-      - cursor/evidence-based-review-pipeline
+    branches: [main]
     paths:
       - "site/**"
       - ".github/workflows/pages.yml"
