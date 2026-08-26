@@ -1,0 +1,18 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Unit and fixture tests
+        run: npm test
+      - name: Block Critical failures on the integration fixture
+        run: node scripts/review-project.mjs fixtures/core-integration-pass --profiles core --format json --ci --fail-on critical

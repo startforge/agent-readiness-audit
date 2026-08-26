@@ -3,6 +3,10 @@
 ## Scope
 
 - Project: {{project}}
+- Commit: {{commitSha}}
+- Review tool version: {{version}}
+- Rule version: {{ruleVersion}}
+- Scan time: {{scannedAt}}
 - Applicable profiles: {{profiles}}
 - Evidence methods: {{evidenceMethods}}
 
@@ -14,8 +18,12 @@
 
 ## Findings
 
-| ID | Status | Risk | Evidence type | Evidence | Remediation |
-| --- | --- | --- | --- | --- | --- |
+| ID | Status | Risk | Confidence | Evidence type | Evidence | Remediation |
+| --- | --- | --- | --- | --- | --- | --- |
+
+## Documentation claims
+
+{{documentationClaims}}
 
 ## Metric baseline
 
@@ -24,6 +32,20 @@
 - Cost: {{cost}}
 - Tool calls: {{toolCalls}}
 
+## Comparison
+
+{{comparison}}
+
+## Quality
+
+- Rule count: {{ruleCount}}
+- Manual-review ratio: {{manualReviewRatio}}
+- Duration: {{durationMs}}
+
 ## Remediation priority
 
 1. {{criticalOrHighFix}}
+
+## Limitations
+
+{{limitations}}
