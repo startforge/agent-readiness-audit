@@ -1,18 +1,18 @@
-# Agent Framework Review 开发计划
+# Agent Framework Review Development Plan
 
-## 目标
+## Objective
 
-将当前基于关键词的静态扫描器升级为以代码为主、文档为导航、测试和运行证据可验证的 Agent 工程审查工具。最终输出应能说明每项结论的标准 ID、状态、风险、证据、置信度和整改方式。
+Evolve the current keyword-based static scanner into an Agent project review tool that treats code as primary evidence, project documentation as navigation, and tests plus runtime traces as verifiable evidence. Every conclusion must identify its standard ID, status, risk, evidence, confidence, and remediation.
 
-## 设计原则
+## Design principles
 
-- 代码、测试和运行 Trace 是实现证据；项目文档只用于建立预期实现地图。
-- 未找到证据不等于失败；自动化不能可靠判断时输出 `unknown` 或 `manual-review`。
-- 每个 Critical / High 结论都必须关联文件、行号、证据类型和验收条件。
-- 对使用者只暴露一个审查入口；文件发现、规则执行、证据归并和报告生成由内部模块处理。
-- 不读取 `.env`、密钥或私密目录；不执行危险外部操作。
+- Code, tests, and runtime traces are implementation evidence; documentation establishes expected design only.
+- Missing evidence is not automatically a failure. Use `unknown` or `manual-review` when automation cannot determine the result reliably.
+- Every Critical or High conclusion must include file location, evidence type, confidence, and acceptance criteria.
+- Expose one simple review entry point; discovery, indexing, rule execution, evidence aggregation, and reporting remain internal.
+- Do not read `.env`, secrets, or private directories, and do not execute dangerous external actions.
 
-## 目标接口
+## Target interface
 
 ```bash
 node scripts/review-project.mjs <target-directory> \
@@ -21,106 +21,94 @@ node scripts/review-project.mjs <target-directory> \
   --output review-report.md
 ```
 
-默认行为：自动发现语言、文档、测试和适用 Profile；只读扫描；输出 JSON 或 Markdown。`core` Profile 永远启用，其余 Profile 可自动建议或由调用者显式指定。
+The default behavior discovers languages, project documents, tests, and applicable profiles. `core` is always enabled; other profiles may be suggested automatically or selected explicitly.
 
-## 内部模块与职责
+## Internal modules
 
-| 模块 | 职责 | 输入 | 输出 |
+| Module | Responsibility | Input | Output |
 | --- | --- | --- | --- |
-| Project Discovery | 识别语言、框架、入口、测试、配置及忽略目录 | 项目目录 | 项目清单与能力画像 |
-| Documentation Index | 阅读高价值项目文档，提取架构声明和预期代码区域 | 文档清单 | 文档索引与预期实现地图 |
-| Evidence Collector | 提取代码、配置、测试和 Trace 证据 | 文件清单、规则 | 带位置和片段的证据 |
-| Rule Engine | 按标准项执行静态、结构、测试和运行规则 | 证据、Profile | 候选状态与缺失证据 |
-| Confidence Engine | 根据证据等级计算置信度，禁止以文档直接判定通过 | 规则结果 | `high` / `medium` / `low` |
-| Report Builder | 生成 JSON、Markdown 和机器可读结果 | 已归并的发现项 | 审查报告 |
+| Project Discovery | Identify language, framework, entry points, tests, configuration, and ignored paths | Project directory | Project manifest and capability profile |
+| Documentation Index | Extract architecture claims and expected code locations from high-value documents | Document list | Documentation index and implementation map |
+| Evidence Collector | Extract code, configuration, test, and trace evidence | Files and rules | Located, explained evidence |
+| Rule Engine | Run static, structural, test, and runtime rules per standard | Evidence and profiles | Candidate status and missing evidence |
+| Confidence Engine | Calculate evidence strength and prevent documentation-only passes | Rule result | `high`, `medium`, or `low` confidence |
+| Report Builder | Produce JSON and Markdown reports | Aggregated findings | Review report |
 
-内部模块应有清晰的 seam；例如 Rule Engine 只依赖标准化 Evidence，不直接遍历文件。这样语言解析器和 Trace 读取器可以替换，而规则判定保持稳定。
+Each module has a clear seam. For example, the Rule Engine consumes normalized Evidence rather than reading files directly, allowing language parsers and trace readers to vary without changing rule logic.
 
-## 分阶段交付
+## Delivery phases
 
-### Phase 0：基线与夹具
+### Phase 0: baseline and fixtures
 
-目标：建立可重复的反馈回路，避免规则升级后无法判断质量。
+- Add `fixtures/` with `pass`, `fail`, and `partial` examples for each standard.
+- Add a single local command that asserts expected results for every fixture.
+- Record baseline rule count, standard coverage, false-positive samples, false-negative samples, and execution time.
+- Preserve compatibility with the existing `inspect-project.mjs` smoke test.
 
-- 创建 `fixtures/`：每个标准至少包含 `pass`、`fail`、`partial` 样例。
-- 创建规则测试：一个命令可运行全部夹具并断言预期状态。
-- 明确基线：当前规则数、标准项覆盖率、误报样本、漏报样本。
-- 为现有 `inspect-project.mjs` 保留兼容 smoke test。
+Acceptance: the fixture command runs without network access and becomes red for a real incorrect implementation.
 
-验收：规则测试可在本地无网络运行，且能对至少一个错误实现稳定报红。
+### Phase 1: traceable scan results
 
-### Phase 1：扫描结果可追溯
+- Support `.ts`, `.tsx`, `.js`, `.mjs`, `.py`, `.json`, `.yaml`, `.yml`, `.toml`, `.sh`, and `.md`.
+- Emit file, line, snippet, evidence type, and match reason for every finding.
+- Distinguish production code, tests, documentation, configuration, and generated files.
+- Map every standard ID to an automated rule, a manual check, or an explicit `manual-review` reason.
+- Migrate legacy `codeEvidence` and `documentationEvidence` into one Evidence format.
 
-目标：从“匹配了哪个文件”升级为“为什么匹配、匹配在哪里”。
+Acceptance: every current standard has a defined check strategy and no finding consists only of a filename.
 
-- 支持 `.ts`、`.tsx`、`.js`、`.mjs`、`.py`、`.json`、`.yaml`、`.yml`、`.toml`、`.sh`、`.md`。
-- 每条证据输出：文件、行号、片段、证据类型、匹配原因。
-- 区分生产代码、测试、文档、配置和生成文件。
-- 建立标准 ID 与规则的完整映射；未实现的标准明确标记为 `manual-review`。
-- 将旧的 `codeEvidence` / `documentationEvidence` 输出迁移到统一 Evidence 格式。
+### Phase 2: documentation-first targeted review
 
-验收：所有当前标准 ID 均有规则、人工检查项或明确的 `manual-review` 说明。
+- Index `README`, `docs/`, ADRs, `AGENTS.md`, `CLAUDE.md`, `SKILL.md`, schemas, and test/deployment instructions.
+- Extract architecture claims for Agent loops, tools, permissions, data sources, traces, deployment, and tests.
+- Record the source and expected code areas for every claim.
+- Report documentation/code mismatches.
+- Optionally extract `.docx` and `.pdf` text; it is always `documentation` evidence and never sufficient for `pass`.
 
-### Phase 2：文档优先的定向代码阅读
+Acceptance: projects with architecture documents yield an implementation map and explicit documentation/code consistency findings.
 
-目标：减少无目的代码读取，提升 Codex 审查效率。
+### Phase 3: structural and call-chain verification
 
-- 默认读取 `README`、`docs/`、ADR、`AGENTS.md`、`CLAUDE.md`、`SKILL.md`、OpenAPI/Schema 文件。
-- 提取架构声明：Agent Loop、Tool 清单、权限模型、数据来源、Trace、部署和测试命令。
-- 为每条声明记录来源和预期代码区域。
-- 将“文档声明”与“代码实现”交叉比对：文档有代码无、代码有文档无、两者一致。
-- 可选支持 `.docx` / `.pdf` 文本提取；其证据等级始终为 `documentation`，不能单独判定 `pass`。
+- Add AST analysis for TS/JS and Python.
+- Identify tool registration, model-output parsing, permission gates, approval gates, executors, and trace writers.
+- Verify the critical path: `model output → schema validation → permission check → confirmation → tool execution → trace`.
+- Prioritize R-02, R-03, T-02, T-03, and O-03.
+- Detect bypass paths such as direct dangerous-tool execution or unrestricted file writes.
 
-验收：对有架构文档的夹具，扫描器可减少无关文件读取，并产出文档—代码一致性发现项。
+Acceptance: pass, fail, and bypass fixtures produce correct results; comments and dead code cannot establish a pass.
 
-### Phase 3：结构与调用链验证
+### Phase 4: tests, evaluations, and runtime evidence
 
-目标：降低关键词误报，验证关键安全路径未被绕过。
+- Discover test commands from project manifests and CI configuration; execute only with authorization.
+- Import JSONL, OpenTelemetry exports, or application traces.
+- Record success rate, p50/p95 latency, token/cost, tool-call count, and failure classification.
+- Add security fixtures for prompt injection, unauthorized tools, dangerous-action rejection, and log disclosure.
+- Critical and High items cannot pass solely from keyword matches when runtime evidence is absent.
 
-- 对 TS/JS 使用 AST；Python 使用 Python AST 或等价解析器。
-- 识别 Tool 注册、模型输出解析、权限门、确认门、执行器、Trace 记录器。
-- 检查关键链路：`模型输出 → schema 校验 → 权限检查 → 确认 → Tool 执行 → Trace`。
-- 针对 T-02、T-03、R-02、R-03、O-03 优先实现数据流与调用链规则。
-- 检测绕过路径：直接执行危险 Tool、未授权写文件、无确认的外部副作用。
+Acceptance: at least one integration fixture verifies permission rejection, approval gating, and trace correlation.
 
-验收：正例、反例和绕过样例均得到正确结论；规则不因注释或文档命中而误判通过。
+### Phase 5: reporting, CI, and quality governance
 
-### Phase 4：测试、评测与运行证据
+- Output JSON and Markdown; optionally SARIF.
+- Compare findings with a previous report.
+- Include rule version, scan time, project commit SHA, profiles, and evidence summary.
+- Provide a read-only CI command with configurable failure thresholds.
+- Track rule coverage, false positives, false negatives, manual-review ratio, and duration.
 
-目标：让高风险结论具备可重复验证依据。
+Acceptance: CI can block a new Critical failure and reports can locate evidence and acceptance actions.
 
-- 自动发现 `package.json`、`pyproject.toml`、`Makefile`、CI 配置中的测试命令，但只在授权范围内执行。
-- 支持导入 JSONL、OpenTelemetry 导出或应用 Trace 作为运行证据。
-- 记录成功率、p50/p95 延迟、Token/成本、Tool 调用次数和失败分类。
-- 增加安全夹具：Prompt Injection、越权 Tool、危险操作拒绝、日志泄密。
-- 无运行验证时，Critical / High 项不能仅依赖关键词判定 `pass`。
+## Priority order
 
-验收：至少一组集成夹具证明权限拒绝、确认门和 Trace 关联均有效。
+1. Phases 0 and 1: reliable feedback and traceable evidence.
+2. Phase 2: documentation indexing to reduce review cost.
+3. Phase 3: structural analysis for security accuracy.
+4. Phase 4: runtime evidence for verifiable conclusions.
+5. Phase 5: CI and trend governance.
 
-### Phase 5：报告、CI 与质量治理
+## Definition of done
 
-目标：让审查结果可消费、可比较、可持续改进。
-
-- 输出 JSON、Markdown；可选 SARIF。
-- 支持与上一份报告比较风险变化。
-- 输出规则版本、扫描时间、项目 commit SHA、Profile 和证据摘要。
-- 在 CI 中提供只读审查命令和失败阈值配置。
-- 统计规则覆盖率、误报率、漏报率、`manual-review` 比例和执行时间。
-
-验收：CI 可阻断新增 Critical `fail`；报告可定位到具体证据和验收动作。
-
-## 优先级
-
-1. Phase 0、Phase 1：建立可靠测试与可追溯扫描结果。
-2. Phase 2：文档索引，降低审查成本。
-3. Phase 3：关键安全链路的结构分析，优先提高准确度。
-4. Phase 4：运行证据，使结论可验证。
-5. Phase 5：CI 与趋势治理。
-
-## 完成定义
-
-- 所有标准项都有检查策略和证据要求。
-- 文档不再被当作实现通过证据。
-- 每项 Critical / High 发现都可定位到证据并给出验收条件。
-- 测试夹具可检测典型误报、漏报和权限绕过。
-- 审查报告能区分静态、测试和运行期结论。
+- Every standard has a check strategy and evidence requirement.
+- Documentation alone never establishes an implementation pass.
+- Every Critical/High finding is locatable and has acceptance criteria.
+- Fixtures cover typical false positives, false negatives, and permission bypasses.
+- Reports distinguish static, test, and runtime conclusions.

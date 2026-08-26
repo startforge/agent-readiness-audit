@@ -1,7 +1,5 @@
 # Agent Framework Review
 
-<p align="right"><a href="README.zh-CN.md">中文</a></p>
-
 This Codex Skill reviews the maturity and risks of Agent projects. It applies consistent standards for runtime behavior, tools, permissions, security, evaluation, observability, and optional capabilities, then produces an evidence-based architecture review report.
 
 ## Quick start with Codex
@@ -42,7 +40,6 @@ The Skill reviews the current project's code, configuration entry points, tests,
 ├── smoke-test.mjs                           # Basic acceptance test
 ├── docs/development-plan.md                 # Development roadmap
 ├── docs/technical-documentation-standard.md # Documentation and evidence standard
-└── README.zh-CN.md                          # Chinese documentation
 ```
 
 ## Usage

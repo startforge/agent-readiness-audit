@@ -1,41 +1,41 @@
 ---
 name: agent-framework-review
-description: 对 Agent 工程按统一运行时、权限、安全、评测和可观测性标准进行审查，并输出有证据的整改报告。
+description: Review Agent projects against consistent standards for runtime behavior, permissions, security, evaluation, and observability, then produce an evidence-based remediation report.
 version: 1.0.0
-triggers: [agent review, agent 架构审查, agent 标准检查, agent 安全评审]
+triggers: [agent review, agent architecture review, agent standards check, agent security review, agent 架构审查, agent 标准检查, agent 安全评审]
 ---
 
 # Agent Framework Review
 
-用于审查已有 Agent 工程的架构完成度和风险。不要把静态扫描结果当作运行时证明；每项结论都应标注证据类型。
+Use this Skill to review the architecture maturity and risks of an existing Agent project. Never treat static scan results as runtime proof; every conclusion must identify its evidence type.
 
-## 执行步骤
+## Workflow
 
-1. 确认工程范围和适用 Profile：`core` 必选，`rag`、`workflow`、`skill`、`browser` 按功能启用。
-2. 阅读 [references/agent-framework-standard.md](references/agent-framework-standard.md)，以标准 ID 和风险等级输出结论。
-3. 运行 `scripts/inspect-project.mjs <target-directory>` 收集静态证据；只把 `codeEvidence` 作为候选实现，`documentationEvidence` 仅用于理解设计。
-4. 阅读 Runtime、Tool、权限、Session、Trace、测试和配置入口，验证扫描发现。
-5. 在授权范围内运行已有测试和评测；未运行时标记 `manual-review`，不要假装通过。
-6. 使用 `templates/review-report.md` 输出发布结论、证据、缺口和按风险排序的整改建议。
+1. Confirm the project scope and applicable profiles: `core` is mandatory; enable `rag`, `workflow`, `skill`, and `browser` when relevant.
+2. Read [references/agent-framework-standard.md](references/agent-framework-standard.md) and report findings with standard IDs and risk levels.
+3. Run `scripts/inspect-project.mjs <target-directory>` to collect static evidence. Treat `codeEvidence` as candidate implementation only; use `documentationEvidence` for design context only.
+4. Read the Runtime, Tools, permissions, Session, Trace, tests, and configuration entry points to verify scan findings.
+5. Run existing tests and evaluations only within the authorized scope. If they are not run, use `manual-review`; never imply a pass.
+6. Use `templates/review-report.md` to produce the release conclusion, evidence, gaps, and risk-prioritized remediation actions.
 
-## 约束
+## Constraints
 
-- 不读取 `.env`、`agent.config.json`、密钥或用户私密目录。
-- 不执行写操作、部署、付款、发信、删除或外部发布来完成审查。
-- 不适用项必须说明理由。
-- Critical/High 缺口先于代码风格问题报告。
+- Do not read `.env`, `agent.config.json`, secrets, or private user directories.
+- Do not perform writes, deployments, payments, messaging, deletion, or external publication to complete a review.
+- Every not-applicable item must include a reason.
+- Report Critical and High gaps before style concerns.
 
-## 脚本
+## Script
 
-- `scripts/inspect-project.mjs`：只读扫描 TypeScript/JavaScript/Markdown 文件，输出标准项的候选证据；开始审查时运行。
+- `scripts/inspect-project.mjs`: read-only scan of TypeScript, JavaScript, Markdown, and JSON files. Run it at the beginning of a review to collect candidate evidence.
 
-## 模板
+## Template
 
-- `templates/review-report.md`：最终架构审查报告；汇总证据后使用。
+- `templates/review-report.md`: use after gathering evidence to write the final architecture review report.
 
-## 验收标准
+## Acceptance criteria
 
-- 报告包含适用 Profile、标准 ID、状态、风险等级和证据。
-- Critical/High 缺口有可执行整改建议。
-- 静态扫描、代码阅读和运行验证被明确区分。
-- 不泄露扫描到的敏感信息。
+- The report includes applicable profiles, standard IDs, status, risk level, and evidence.
+- Every Critical or High gap has an actionable remediation recommendation.
+- Static scanning, code review, and runtime verification are clearly distinguished.
+- The report does not expose sensitive information found during scanning.
