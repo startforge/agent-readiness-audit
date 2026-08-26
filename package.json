@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "description": "Evidence-based architecture review for Agent projects",
+  "homepage": "https://startforge.github.io/agent-readiness-audit/",
   "scripts": {
     "test": "node test/review-project.test.mjs && node test/fixtures.test.mjs && node test/reporting.test.mjs && node smoke-test.mjs",
     "test:fixtures": "node test/fixtures.test.mjs",
