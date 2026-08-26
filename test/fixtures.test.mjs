@@ -11,7 +11,7 @@ const review = join(root, "scripts/review-project.mjs");
 function reviewFixture(name) {
   const started = Date.now();
   const target = join(fixturesRoot, name);
-  const output = execFileSync("node", [review, target, "--profiles", "core", "--format", "json"], {
+  const output = execFileSync("node", [review, target, "--profiles", "core", "--format", "json", "--no-artifacts"], {
     encoding: "utf8",
   });
   return { report: JSON.parse(output), durationMs: Date.now() - started };

@@ -1,5 +1,5 @@
 {
-  "version": "1.1.0",
+  "version": "1.2.0",
   "ruleCount": 31,
   "automatedRuleCount": 31,
   "standardCoverage": [
@@ -44,6 +44,7 @@
   "knownLimitations": [
     "Module-resolved middleware gates that are not named in the executor may still need manual review.",
     "Tests and runtime traces are discovered, not executed, unless --execute-tests is passed.",
-    "Critical and High items cannot pass from keyword matches alone."
+    "Critical and High items cannot pass from keyword matches alone.",
+    "Incremental reviews reuse unchanged files from receipt.json (size + mtime); --full forces a rescan."
   ]
 }
