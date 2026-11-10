@@ -1,7 +1,7 @@
 ---
 name: agent-framework-review
 description: Review Agent projects against consistent standards for runtime behavior, permissions, security, evaluation, and observability, then produce an evidence-based remediation report.
-version: 1.2.0
+version: 1.3.0
 triggers: [agent review, agent architecture review, agent standards check, agent security review, agent 架构审查, agent 标准检查, agent 安全评审]
 ---
 
@@ -17,7 +17,7 @@ Use this Skill to review the architecture maturity and risks of an existing Agen
 
    `scripts/review-project.mjs <target-directory>`
 
-   That writes the data report, Excel workbook, and HTML into `agent-review/` and prints a draft to stdout. Treat code, tests, and traces as implementation evidence; use documentation claims for design context only. Later reviews reuse `agent-review/receipt.json` so unchanged files are not re-read. Pass `--full` only when a complete rescan is required.
+   Read `package.json` / Python manifests first. If Mastra, LangGraph, or LangChain is declared, search the project for that framework's constructors and init parameters (`maxSteps`, `createTool`, `recursion_limit`, `interrupt_before`, …). Do not treat `node_modules` internals as evidence. If no such framework is declared or no call sites exist, continue with the custom runtime / tool / permission / workflow scan. Later reviews reuse `agent-review/receipt.json`. Pass `--full` only when a complete rescan is required.
 4. Read the Runtime, Tools, permissions, Session, Trace, tests, and configuration entry points to verify scan findings.
 5. Run existing tests only with `--execute-tests` when authorized. If they are not run, keep `partial`/`unknown` where runtime proof is required; never imply a pass from documentation.
 6. Point the user to `agent-review/report.html` (browser), `agent-review/report.xlsx` (Excel), and `agent-review/report.md` / `report.json` (data). Use [templates/review-report.md](templates/review-report.md) only if a human narrative is needed on top. In CI, use `--ci --fail-on critical` (CI does not write `agent-review/` unless `--artifacts-dir` is set).

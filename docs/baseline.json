@@ -1,5 +1,5 @@
 {
-  "version": "1.2.0",
+  "version": "1.3.0",
   "ruleCount": 31,
   "automatedRuleCount": 31,
   "standardCoverage": [
@@ -27,10 +27,12 @@
     "core-approval-pass",
     "core-approval-fail",
     "core-approval-bypass",
+    "core-approval-status-pass",
     "core-redact-pass",
     "core-redact-fail",
     "core-security-injection",
-    "core-integration-pass"
+    "core-integration-pass",
+    "framework-mastra-init"
   ],
   "falsePositiveSamples": [
     "comments are ignored as implementation evidence",
@@ -39,12 +41,15 @@
   ],
   "falseNegativeSamples": [
     "unused authorize() next to executeTool is treated as a permission bypass",
-    "unbounded tool loops without maxSteps fail R-03"
+    "unbounded tool loops without maxSteps fail R-03",
+    "T-03 is not limited to deleteFile; archive/modify confirmation states count"
   ],
   "knownLimitations": [
     "Module-resolved middleware gates that are not named in the executor may still need manual review.",
     "Tests and runtime traces are discovered, not executed, unless --execute-tests is passed.",
     "Critical and High items cannot pass from keyword matches alone.",
-    "Incremental reviews reuse unchanged files from receipt.json (size + mtime); --full forces a rescan."
+    "Incremental reviews reuse unchanged files from receipt.json (size + mtime); --full forces a rescan.",
+    "S-01 can pass from a prompt-injection fixture; exfiltration, tool-abuse, and cross-tenant cases still need review.",
+    "Playwright in tests or playwright.config does not enable the browser profile."
   ]
 }

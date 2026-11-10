@@ -36,7 +36,7 @@ body::before {
 .sheet {
   position: relative;
   z-index: 1;
-  max-width: 42rem;
+  max-width: 1080px;
   margin: 0 auto;
   padding: 1.75rem 1.4rem 3.5rem;
   background: var(--paper);
@@ -133,7 +133,6 @@ h3 { margin: 0 0 0.3rem; font-size: 1.12rem; }
 }
 .lede {
   margin: 0 0 1.4rem;
-  max-width: 38rem;
   color: var(--ink);
   font-size: 1.05rem;
 }

@@ -5,6 +5,10 @@ import { join, resolve } from "node:path";
 import { reviewProject } from "../lib/review.mjs";
 import { ciExitCode, compareReports, toSarif } from "../lib/sarif.mjs";
 import { stripJsComments, parseModule } from "../lib/ast.mjs";
+import { fileCapabilityFlags, detectCapabilities } from "../lib/discovery.mjs";
+import { evaluateStandard } from "../lib/engine.mjs";
+import { STANDARDS_BY_ID } from "../lib/standards.mjs";
+import { detectDeclaredFrameworks, inspectFrameworks } from "../lib/frameworks.mjs";
 
 const root = resolve(import.meta.dirname, "..");
 const review = join(root, "scripts/review-project.mjs");
@@ -24,6 +28,34 @@ if (ast.functions[0].calls.some((call) => call.name === "authorize")) {
 if (!stripJsComments("a//b\nc").includes("c") || stripJsComments("a// authorize()\n").includes("authorize")) {
   throw new Error("comment stripper failed");
 }
+
+if (fileCapabilityFlags({ kind: "test", relative: "e2e/app.spec.ts", text: "import { test } from '@playwright/test'\n" }).hasBrowser) {
+  throw new Error("Playwright E2E tests must not enable the browser profile");
+}
+if (fileCapabilityFlags({ kind: "code", relative: "playwright.config.ts", text: "import { defineConfig } from '@playwright/test'\n" }).hasBrowser) {
+  throw new Error("playwright.config must not enable the browser profile");
+}
+if (!fileCapabilityFlags({ kind: "code", relative: "src/browser.ts", text: "export class BrowserSession {}\n" }).hasBrowser) {
+  throw new Error("BrowserSession in production code should enable the browser profile");
+}
+
+const likeOnly = detectCapabilities([
+  { kind: "code", relative: "src/search.mjs", text: "export function retrieve(q) { return sql`SELECT * FROM docs WHERE title LIKE ${q}` }\n" },
+]);
+if (!likeOnly.hasRag) throw new Error("LIKE retrieval should still suggest rag");
+if (likeOnly.hasEmbeddings) throw new Error("LIKE retrieval should not count as embeddings");
+const k02 = evaluateStandard(STANDARDS_BY_ID["K-02"], [], { profiles: ["core", "rag"], capabilities: likeOnly, structure: {} });
+if (k02.status !== "not-applicable") throw new Error(`K-02 should be N/A without embeddings, got ${k02.status}`);
+
+const mastraDeclared = detectDeclaredFrameworks("/tmp", [
+  { relative: "package.json", text: JSON.stringify({ dependencies: { "@mastra/core": "1.0.0" } }) },
+]);
+if (!mastraDeclared.some((item) => item.id === "mastra")) throw new Error("package.json should declare Mastra");
+const unusedMastra = inspectFrameworks("/tmp", [
+  { relative: "package.json", kind: "configuration", text: JSON.stringify({ dependencies: { "@mastra/core": "1.0.0" } }) },
+  { relative: "src/app.mjs", kind: "code", language: "js", text: "export const x = 1;\n" },
+]);
+if (unusedMastra.mode !== "custom") throw new Error("declared Mastra without call sites should fall through to custom scan");
 
 const fail = reviewProject(join(root, "fixtures/core-permission-fail"), { profiles: ["core"] });
 if (ciExitCode(fail, { failOn: ["critical"] }) !== 1) throw new Error("CI should block Critical T-02 fail");

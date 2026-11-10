@@ -6,7 +6,7 @@ An evidence-based architecture review for Agent projects. It checks runtime beha
 
 The scanner locates implementation evidence in code, tests, and traces. Architecture documents help it know where to look; they never independently produce a `pass`. A keyword match is never proof that the Agent is ready to run in production. When you run it in a project, it writes a bundle to that project's `agent-review/` folder (data report, Excel, HTML). `--ci` stays read-only unless you pass `--artifacts-dir`.
 
-Current release: **1.2.0**. Requires **Node.js 20+**. No extra npm packages.
+Current release: **1.3.0**. Requires **Node.js 20+**. No extra npm packages.
 
 ## Contents
 
@@ -89,7 +89,7 @@ One command drives an internal pipeline. Callers should not need the internals; 
 
 | Stage | What it does |
 | --- | --- |
-| Discovery | Walks the target tree, classifies files (code, test, docs, config, traces), detects languages and capabilities, suggests profiles. Skips `.git`, `node_modules`, build output, `.env`, `agent.config.json`, and other secret-like files. |
+| Discovery | Walks the target tree, classifies files (code, test, docs, config, traces), reads `package.json` for Mastra/LangGraph/LangChain, detects languages and capabilities, suggests profiles. Skips `.git`, `node_modules`, build output, `.env`, `agent.config.json`, and other secret-like files. |
 | Documentation index | Reads high-value docs (`README`, `docs/`, ADRs, `AGENTS.md`, `CLAUDE.md`, `SKILL.md`, schema files). Records architecture claims and expected code areas. Optional `.docx` / `.pdf` text is documentation only. |
 | Evidence collection | Matches rules with file, line, snippet, type, and reason. Comments are ignored. |
 | Structural analysis | Parses JS/TS and Python into functions and calls. Checks that permission, schema, budget, approval, and redaction actually sit on the tool path. Unused helpers and comment-only gates cannot pass. |
@@ -250,7 +250,7 @@ Normative definitions live in [references/agent-framework-standard.md](reference
 | R-05 | Medium | Context length/token budget and truncation. |
 | T-01 | High | Tool input, output, and error boundaries. |
 | T-02 | Critical | Permission and scope checks on every tool call. |
-| T-03 | Critical | Confirmation for delete, pay, publish, or messaging. |
+| T-03 | Critical | Confirmation for delete, archive, modify, pay, publish, or messaging. |
 | O-01 | Medium | Per-run trace correlated to run/session/task. |
 | O-02 | Medium | Latency, token/cost, or an explicit cost-unavailable marker. |
 | O-03 | High | Logs/traces do not expose secrets or full sensitive payloads. |
@@ -318,9 +318,11 @@ node scripts/review-project.mjs . --format json --output review.json --ci --fail
 | `core-schema-pass` / `fail` / `partial` | R-02 parse-before-execute vs raw model output vs unused `JSON.parse`. |
 | `core-budget-pass` / `fail` | R-03 `maxSteps` loop vs unbounded `while (true)`. |
 | `core-approval-pass` / `fail` / `bypass` | T-03 confirmation on `deleteFile`. |
+| `core-approval-status-pass` | T-03 `pass`: `archive` / `modify` go through `awaiting_confirmation`. |
 | `core-redact-pass` / `fail` | O-03 redaction vs logging `apiKey`. |
 | `core-security-injection` | S-01 prompt-injection test. |
 | `core-integration-pass` | Permission denial, approval gating, and correlated JSONL traces together. |
+| `framework-mastra-init` | package.json declares `@mastra/core`; Agent `maxSteps` / `createTool` init is enough for R-01, R-03, T-01. |
 
 When this repository itself is the scan target, `fixtures/` is skipped so sample Agents do not pollute the Skill’s own review.
 
